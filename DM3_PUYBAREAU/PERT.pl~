@@ -1,0 +1,23 @@
+:- use_module(library(clpfd)).
+
+pert(Taches) :-
+    Taches = [A, B, C, D, E, F, G, H, I, J],
+    Taches ins 0..30.
+%Une tache ne peut pa commencer après 30
+%car la somme des taches vaut 30.
+    A+5 #=< B,
+    A+5 #=< C,
+    A+5 #=< D,
+    B+4 #=< E,
+    C+3 #=< F,
+    C+3 #=< F,
+    D+2 #=< H,
+    F+5 #=< I,
+    G+4 #=< I,
+    H+3 #=< J,
+    I+2 #=< J,
+    minof(labeling(Taches), J).
+
+
+
+

@@ -1,0 +1,42 @@
+:- use_module(library(clpfd)).
+
+emploi_du_temps(Sessions, Salles) :-
+    Sessions = [A, B, C, D, E, F, G, H, I, J, K],
+    Sessions ins 1..12,  % 12 créneaux sur 2 jours
+
+    % Contraintes de non chevauchement
+    maplist(all_different, [
+        [A, J],  % Sessions A et J ne peuvent pas être en même temps
+        [J, I],  % etc.
+        [I, E],
+        [E, C],
+        [C, F],
+        [F, G],
+        [D, H],
+        [B, D],
+        [K, E]
+    ]),
+
+    % Contraintes d'ordre spécifique
+    E #< J,
+    D #< K,
+    F #< K,
+
+    % Prédicat pour la répartition des salles
+    repartition_salles(Sessions, Salles),
+
+    % Trouver une solution
+    label(Sessions).
+
+repartition_salles(Sessions, Salles) :-
+    length(Sessions, Length),
+    length(Salles, Length),  % Une salle pour chaque session
+    Salles ins 1..3,         % 3 salles disponibles
+
+    % Contraintes pour chaque créneau : au plus 3 sessions (une par salle)
+    findall(Creneau-Salle, (between(1, 12, Creneau), member(Creneau, Sessions), nth1(Index, Sessions, Creneau), nth1(Index, Salles, Salle)), Associations),
+    maplist(salle_unique_par_creneau, Associations).
+
+salle_unique_par_creneau(Creneau-Salle) :-
+    aggregate_all(count, member(Creneau-Salle, Associations), Count),
+    Count =< 1.
